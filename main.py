@@ -14,7 +14,7 @@ if world.dataset in ['gowalla', 'yelp2018', 'amazon-book']:
 elif world.dataset == 'lastfm':
     dataset = dataloader.Loader(path="./data")
 
-UserItemNet = dataset.UserItemNet.toarray()
+UserItemNet = dataset.getSparseGraph().toarray()
 user_item_net_dense = torch.tensor(UserItemNet, dtype=torch.float32)
 file_path = dataset.path + "/saving_files"
 UserItemNet_gpu = torch.sparse_coo_tensor(
