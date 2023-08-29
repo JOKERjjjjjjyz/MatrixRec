@@ -39,7 +39,7 @@ if __name__ == '__main__':
     print(C_sum.shape)
     vector_propagate = Mrow(C_sum,M).dot(uservector)
     print("topK here")
-    recommendList, recommend_vector = topK_parallel(uservector, rowM(vector_propagate,M), M, N, 20,core)
+    recommendList, recommend_vector = topK(uservector, rowM(vector_propagate,M), M, N, 20)
     count = evaluate(recommendList, testarray)
     recall = count / dataset.testDataSize
     print("sum ver:epoch:",1," recall:", recall)
@@ -57,12 +57,12 @@ if __name__ == '__main__':
         filename = f"{world.dataset}_vector_propagate_{i}.npy"
         np.save(filename, vector_propagate)
         print("epoch",i," finished")
-        recommendList, recommend_vector = topK_parallel(uservector, rowM(vector_propagate,M), M, N, 20,core)
+        recommendList, recommend_vector = topK(uservector, rowM(vector_propagate,M), M, N, 20)
         count = evaluate(recommendList, testarray)
         recall = count / dataset.testDataSize
         print("not sum ver:epoch:",i," recall:", recall)
         vector_propagate = C_user_sum.dot(uservector)
-        recommendList, recommend_vector = topK_parallel(uservector, rowM(vector_propagate,M), M, N, 20,core)
+        recommendList, recommend_vector = topK(uservector, rowM(vector_propagate,M), M, N, 20)
         # recommend_vector_csr = csr_matrix(recommend_vector)
         # sp.save_npz(dataset.path + '/recommend_vector_{i}.npz', recommend_vector_csr)
         count = evaluate(recommendList, testarray)

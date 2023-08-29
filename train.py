@@ -58,47 +58,52 @@ def Klayer_sampleNum(k,epsilon,delta,M,index):
     # return N: sample number for k
     N = 1/(2*epsilon*epsilon)*math.log(2*M/delta)*M*math.pow(k,index)
     return int(N)+1
-def topK_worker(chunk, vector_origin, vector_propagate, k):
-    recommendList = []
-    recommend_vector = vector_propagate - 10000 * vector_origin
-    for user in chunk:
-        sorted_indices = np.argsort(vector_propagate[user])
-        topk_indices = sorted_indices[-k:]
-        for idx in topk_indices:
-            recommend_vector[user,idx] = 1
-            recommendList.append((user, idx))
-    return recommendList, recommend_vector
-
-def topK_parallel(vector_origin, vector_propagate, M, N, k, num_cores):
-    recommendList = []
-    recommend_vector = [np.zeros(N) for _ in range(M)]
-
-    pool = multiprocessing.Pool(processes=num_cores)
-    chunk_size = M // num_cores
-    chunks = [list(range(i * chunk_size, (i + 1) * chunk_size)) for i in range(num_cores)]
-    results = []
-    for chunk in chunks:
-        results.append(pool.apply_async(topK_worker, (chunk, vector_origin, vector_propagate, k)))
-    pool.close()
-    pool.join()
-    for result in results:
-        chunk_recommendList, chunk_recommend_vector = result.get()
-        recommendList.extend(chunk_recommendList)
-        for user in chunk:
-            recommend_vector[user] = chunk_recommend_vector[user]
-    return recommendList, recommend_vector
+# def topK_worker(chunk, vector_origin, vector_propagate, N,k):
+#     recommendList = []
+#     recommend_vector = np.zeros(N)
+#     vector_propagate_copy = vector_propagate.copy()
+#     vector_origin_copy = vector_origin.copy()
+#     # 在复制的矩阵上执行操作
+#     vector = vector_propagate_copy - 10000 * vector_origin_copy
+#     for user in chunk:
+#         sorted_indices = np.argsort(vector[user])
+#         topk_indices = sorted_indices[-k:]
+#         for idx in topk_indices:
+#             recommend_vector[user,idx] = 1
+#             recommendList.append((user, idx))
+#     return recommendList, recommend_vector
+#
+# def topK_parallel(vector_origin, vector_propagate, M, N, k, num_cores):
+#     recommendList = []
+#     recommend_vector = [np.zeros(N) for _ in range(M)]
+#     print(type(vector_origin),type(vector_propagate))
+#     pool = multiprocessing.Pool(processes=num_cores)
+#     chunk_size = M // num_cores
+#     chunks = [list(range(i * chunk_size, (i + 1) * chunk_size)) for i in range(num_cores)]
+#     results = []
+#     for chunk in chunks:
+#         results.append(pool.apply_async(topK_worker, (chunk, vector_origin, vector_propagate,N, k)))
+#     pool.close()
+#     pool.join()
+#     for result in results:
+#         chunk_recommendList, chunk_recommend_vector = result.get()
+#         recommendList.extend(chunk_recommendList)
+#         for user in chunk:
+#             recommend_vector[user] = chunk_recommend_vector[user]
+#     return recommendList, recommend_vector
 
 def topK(vector_origin,vector_propagate,M,N,k):
     recommendList = []
     recommend_vector = [np.zeros(N) for _ in range(M)]
+    vector = vector_propagate - 10000*vector_origin
     print(type(vector_origin),vector_origin.shape,type(vector_propagate),vector_propagate.shape)
     for user in range(M):
         print("topK of user",user)
-        recommend_vector = vector_propagate - 10000*vector_origin
-        sorted_indices = np.argsort(vector_propagate[user])
+        # recommend_vector = vector_propagate - 10000*vector_origin
+        sorted_indices = np.argsort(vector[user])
         topk_indices = sorted_indices[-k:]
         for idx in topk_indices:
-            recommend_vector[user,idx] = 1
+            recommend_vector[user][idx] = 1
             recommendList.append((user,idx))
         print("user",user,"finished")
     return recommendList, recommend_vector
