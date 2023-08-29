@@ -194,7 +194,6 @@ class Loader(BasicDataset):
 
                 adj_mat = adj_mat.tocsr()
                 sp.save_npz(self.path + '/adj_mat.npz', adj_mat)
-                adj_mat = adj_mat.todok()
                 self.Graph = adj_mat
                 # adj_mat = adj_mat + sp.eye(adj_mat.shape[0])
 

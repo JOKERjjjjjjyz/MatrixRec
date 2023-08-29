@@ -15,12 +15,14 @@ elif world.dataset == 'lastfm':
     dataset = dataloader.Loader(path="./data")
 
 UserItemNet = dataset.getSparseGraph().toarray()
+graph = dataset.getSparseGraph()
+print(type(graph))
 user_item_net_dense = torch.tensor(UserItemNet, dtype=torch.float32)
 file_path = dataset.path + "/saving_files"
 UserItemNet_gpu = torch.sparse_coo_tensor(
-    indices=torch.tensor(dataset.UserItemNet.nonzero(), dtype=torch.int64).to('cuda'),
-    values=torch.tensor(dataset.UserItemNet.data, dtype=torch.float32).to('cuda'),
-    size=dataset.UserItemNet.shape
+    indices=torch.tensor(graph.nonzero(), dtype=torch.int64).to('cuda'),
+    values=torch.tensor(graph.data, dtype=torch.float32).to('cuda'),
+    size=graph.shape
 )
 
 # 假设 user_item_net_dense 是一个稠密张量
