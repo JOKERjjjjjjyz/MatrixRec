@@ -25,8 +25,8 @@ UserItemNet_gpu = torch.sparse_coo_tensor(
 
 # 假设 user_item_net_dense 是一个稠密张量
 user_item_net_transposed = user_item_net_dense.t()
-
-B = torch.sparse.mm(UserItemNet_gpu, user_item_net_transposed)
+user_item_net_transposed_gpu = user_item_net_transposed.to('cuda')
+B = torch.sparse.mm(UserItemNet_gpu, user_item_net_transposed_gpu)
 
 # num_rows, num_cols = dataset.UserItemNet.shape
 # vector_origin = []
