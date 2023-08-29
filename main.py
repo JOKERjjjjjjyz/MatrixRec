@@ -17,6 +17,24 @@ elif world.dataset == 'lastfm':
 UserItemNet = dataset.getSparseGraph().toarray()
 graph = dataset.getSparseGraph()
 print(type(graph))
+original_stdout = sys.stdout
+torch.set_printoptions(threshold=np.inf)
+
+# 打开一个文件来替代 stdout
+with open('adjacentmatrix.txt', 'w') as f:
+    # 重定向 stdout 到文件
+    sys.stdout = f
+    print("Final matrix:",graph )
+    # 现在所有的 print 输出都会写入到文件中
+    # with np.printoptions(threshold=np.inf):
+    #     print("0:",vector_array[0])
+    #     print("1:",vector_array[1])
+    # print("users:",dataset.n_users)
+    # print("items:",dataset.m_items)
+# 恢复原始的 stdout
+sys.stdout = original_stdout
+torch.set_printoptions(profile='default')
+
 user_item_net_dense = torch.tensor(UserItemNet, dtype=torch.float32)
 file_path = dataset.path + "/saving_files"
 UserItemNet_gpu = torch.sparse_coo_tensor(
