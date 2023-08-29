@@ -16,6 +16,9 @@ elif world.dataset == 'lastfm':
 
 graph,norm_graph = dataset.getSparseGraph()
 C=norm_graph
+print(graph)
+print("haha")
+print(C)
 C_sum =C
 print(type(graph),type(C))
 M = dataset.n_users
@@ -26,7 +29,6 @@ K = K_value[0]
 alpha = world.config['lr']
 vector_propagate = np.zeros((M + N, N))
 print(vector_propagate.shape)
-vector_propagate_sum = np.zeros((M + N, N))  # 创建用于存储总和的矩阵
 testarray = [[] for _ in range(M)]
 uservector = dataset.UserItemNet
 print(type(uservector))
@@ -35,7 +37,7 @@ for idx, user in enumerate(dataset.test):
 print(C_sum.shape)
 vector_propagate = Mrow(C_sum,M).dot(uservector)
 print("topK here")
-recommendList, recommend_vector = topK(uservector, vector_propagate_sum, M, N, 20)
+recommendList, recommend_vector = topK(uservector, rowM(vector_propagate,M), M, N, 20)
 count = evaluate(recommendList, testarray)
 recall = count / dataset.testDataSize
 print("sum ver:epoch:",1," recall:", recall)
@@ -53,12 +55,14 @@ for i in range(2,K+1):
     filename = f"{world.dataset}_vector_propagate_{i}.npy"
     np.save(filename, vector_propagate)
     print("epoch",i," finished")
-    recommendList, recommend_vector = topK(uservector, vector_propagate_sum, M, N, 20)
+    recommendList, recommend_vector = topK(uservector, rowM(vector_propagate,M), M, N, 20)
     count = evaluate(recommendList, testarray)
     recall = count / dataset.testDataSize
     print("not sum ver:epoch:",i," recall:", recall)
     vector_propagate = C_user_sum.dot(uservector)
-    recommendList, recommend_vector = topK(uservector, vector_propagate_sum, M, N, 20)
+    recommendList, recommend_vector = topK(uservector, rowM(vector_propagate,M), M, N, 20)
+    recommend_vector_csr = csr_matrix(recommend_vector)
+    sp.save_npz(dataset.path + '/recommend_vector_{i}.npz', recommend_vector_csr)
     count = evaluate(recommendList, testarray)
     recall = count / dataset.testDataSize
     print("sum ver:epoch:",i," recall:", recall)

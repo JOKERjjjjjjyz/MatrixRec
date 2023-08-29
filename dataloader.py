@@ -204,7 +204,6 @@ class Loader(BasicDataset):
                 d_inv = np.power(rowsum, -1).flatten()
                 d_inv[np.isinf(d_inv)] = 0.
                 d_mat = sp.diags(d_inv)
-                #
                 norm_adj = d_mat.dot(adj_mat)
                 # norm_adj = norm_adj.dot(d_mat)
                 norm_adj = norm_adj.tocsr()
