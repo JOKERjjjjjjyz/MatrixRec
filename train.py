@@ -2,6 +2,7 @@ import numpy as np
 import random
 import math
 import time
+import scipy.sparse
 def randomwalk(length,graph,start_node):
     current_node = start_node
     for step in range(length):
@@ -16,6 +17,24 @@ def randomwalk(length,graph,start_node):
         current_node = next_node
     radio = 1/length
     return current_node,radio
+
+def Mrow(matrix,M):
+    # 假设 A 是一个 N*N 的 CSR 矩阵，M 是你想要提取的行数
+    # 提取前 M 行的数据
+    # N = matrix.shape[0]
+    # print(N)
+    # print(matrix.indptr,matrix.data,matrix.indices)
+    # B_data = matrix.data[:M]
+    # B_indices = matrix.indices[:M]
+    # B_indptr = matrix.indptr[:M + 1]
+    #
+    # print(B_indices,B_indptr)
+    # # 构建 CSR 矩阵 B
+    # B = scipy.sparse.csr_matrix((B_data, B_indices, B_indptr), shape=(M,N))
+    B = matrix[:M]
+    B = B.transpose()
+    print (B.shape)
+    return B
 
 def propagate(k,graph,vector_origin,M,N,KsampleNum):
     user_list = [i for i in range(M)]
@@ -41,8 +60,8 @@ def topK(vector_origin,vector_propagate,M,N,k):
     recommend_vector = [np.zeros(N) for _ in range(M)]
     for user in range(M):
         for j in range(N):
-            if vector_origin[user][j] != 0 :
-                vector_propagate[user][j] = 0;
+            if vector_origin[user,j] != 0 :
+                vector_propagate[user,j] = 0;
         sorted_indices = np.argsort(vector_propagate[user])
         # 获取 top-k 大值的索引
         topk_indices = sorted_indices[-k:]

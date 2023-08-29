@@ -14,24 +14,47 @@ if world.dataset in ['gowalla', 'yelp2018', 'amazon-book']:
 elif world.dataset == 'lastfm':
     dataset = dataloader.Loader(path="./data")
 
-UserItemNet = dataset.getSparseGraph().toarray()
-graph = dataset.getSparseGraph()
-print(type(graph))
-graph_composed = graph.transpose()
-C = graph.dot(graph_composed)
-# user_item_net_dense = torch.tensor(UserItemNet, dtype=torch.float32)
-# file_path = dataset.path + "/saving_files"
-# UserItemNet_gpu = torch.sparse_coo_tensor(
-#     indices=torch.tensor(graph.nonzero(), dtype=torch.int64).to('cuda'),
-#     values=torch.tensor(graph.data, dtype=torch.float32).to('cuda'),
-#     size=graph.shape
-# )
-#
-# # 假设 user_item_net_dense 是一个稠密张量
-# user_item_net_transposed = user_item_net_dense.t()
-# user_item_net_transposed_gpu = user_item_net_transposed.to('cuda')
-# B = torch.sparse.mm(UserItemNet_gpu, user_item_net_transposed_gpu)
-
+graph,norm_graph = dataset.getSparseGraph()
+C=graph
+C_sum =C
+print(norm_graph.shape)
+M = dataset.n_users
+N = dataset.m_items
+print(M,N)
+K_value = eval(world.topks)
+K = K_value[0]
+alpha = world.config['lr']
+vector_propagate = np.zeros((M + N, N))
+print(vector_propagate.shape)
+vector_propagate_sum = np.zeros((M + N, N))  # 创建用于存储总和的矩阵
+testarray = [[] for _ in range(M)]
+uservector = dataset.UserItemNet
+print(uservector.shape)
+for idx, user in enumerate(dataset.test):
+    testarray[idx] = dataset.test[user]
+print(C_sum.shape)
+vector_propagate = Mrow(C_sum,M).dot(uservector)
+recommendList, recommend_vector = topK(uservector, vector_propagate_sum, M, N, 20)
+count = evaluate(recommendList, testarray)
+recall = count / dataset.testDataSize
+print("sum ver:epoch:",1," recall:", recall)
+for i in range(2,K+1):
+    C = C.dot(graph) * alpha * math.pow(1-alpha,i-1)
+    filename = f"{world.dataset}_matrix_{i}.npy"  # 文件名类似于 matrix_0.npy, matrix_1.npy, ...
+    np.save(filename, C)
+    C_sum += C
+    C_user = Mrow(C,M)
+    C_user_sum = Mrow(C_sum,M)
+    vector_propagate = C_user.dot(uservector)
+    recommendList, recommend_vector = topK(uservector, vector_propagate_sum, M, N, 20)
+    count = evaluate(recommendList, testarray)
+    recall = count / dataset.testDataSize
+    print("not sum ver:epoch:",i," recall:", recall)
+    vector_propagate = C_user_sum.dot(uservector)
+    recommendList, recommend_vector = topK(uservector, vector_propagate_sum, M, N, 20)
+    count = evaluate(recommendList, testarray)
+    recall = count / dataset.testDataSize
+    print("sum ver:epoch:",i," recall:", recall)
 # num_rows, num_cols = dataset.UserItemNet.shape
 # vector_origin = []
 #
@@ -64,26 +87,11 @@ C = graph.dot(graph_composed)
 # # M:user number; N: item number
 # # vector_origin: M*N;  vector_propagate: (M+N)*N
 # index = world.seed
-# M = dataset.n_users
-# N = dataset.m_items
-# K_value = eval(world.topks)
-# K = K_value[0]
-# vector_propagate = [np.zeros((M + N, N)) for _ in range(K)]
-# vector_propagate_sum = np.zeros((M + N, N))  # 创建用于存储总和的矩阵
-# testarray = [[] for _ in range(M)]
-# for idx, user in enumerate(dataset.test):
-#     testarray[idx] = dataset.test[user]
+
+
+
 #
-# for i in range(1,K+1):
-#     sampleNum = Klayer_sampleNum(i,0.025, 0.5, M,index)
-#     vector_propagate[i-1] = propagate(i,graph,vector_origin,M,N,sampleNum)
-#     filename = f"{world.dataset}_matrix_{i-1}.npy"  # 文件名类似于 matrix_0.npy, matrix_1.npy, ...
-#     np.save(filename, vector_propagate[i-1])
-#     vector_propagate_sum += vector_propagate[i-1]
-#     recommendList, recommend_vector = topK(vector_origin, vector_propagate_sum, M, N, 20)
-#     count = evaluate(recommendList, testarray)
-#     recall = count / dataset.testDataSize
-#     print("epoch:",i," recall:", recall)
+
 #
 # filename = f"matrix_sum.npy"  # 文件名类似于 matrix_0.npy, matrix_1.npy, ...
 # np.save(filename, vector_propagate_sum)
@@ -99,8 +107,8 @@ C = graph.dot(graph_composed)
 # 将原始 stdout 保存到变量
 # B_cpu = B.to('cpu')
 C = C.toarray()
-print("Transposed UserItemNet * UserItemNet:")
-print(C)
+# print("Transposed UserItemNet * UserItemNet:")
+# print(C)
 original_stdout = sys.stdout
 
 # 打开一个文件来替代 stdout
@@ -116,3 +124,15 @@ with open('recall_output.txt', 'w') as f:
     # print("items:",dataset.m_items)
 # 恢复原始的 stdout
 sys.stdout = original_stdout
+# user_item_net_dense = torch.tensor(UserItemNet, dtype=torch.float32)
+# file_path = dataset.path + "/saving_files"
+# UserItemNet_gpu = torch.sparse_coo_tensor(
+#     indices=torch.tensor(graph.nonzero(), dtype=torch.int64).to('cuda'),
+#     values=torch.tensor(graph.data, dtype=torch.float32).to('cuda'),
+#     size=graph.shape
+# )
+#
+# # 假设 user_item_net_dense 是一个稠密张量
+# user_item_net_transposed = user_item_net_dense.t()
+# user_item_net_transposed_gpu = user_item_net_transposed.to('cuda')
+# B = torch.sparse.mm(UserItemNet_gpu, user_item_net_transposed_gpu)

@@ -118,6 +118,7 @@ class Loader(BasicDataset):
         self.testItem = np.array(testItem)
 
         self.Graph = None
+        self.normadj = None
         print(f"{self.trainDataSize} interactions for training")
         print(f"{self.testDataSize} interactions for testing")
         print(f"{world.dataset} Sparsity : {(self.trainDataSize + self.testDataSize) / self.n_users / self.m_items}")
@@ -180,9 +181,11 @@ class Loader(BasicDataset):
         if self.Graph is None:
             try:
                 pre_adj_mat = sp.load_npz(self.path + '/adj_mat.npz')
+                norm_mat = sp.load_npz(self.path + '/norm_mat.npz')
                 print("successfully loaded...")
                 adj_mat = pre_adj_mat
                 self.Graph = adj_mat
+                self.normadj = norm_mat
             except:
                 print("generating adjacency matrix")
                 s = time()
@@ -197,17 +200,19 @@ class Loader(BasicDataset):
                 self.Graph = adj_mat
                 # adj_mat = adj_mat + sp.eye(adj_mat.shape[0])
 
-                # rowsum = np.array(adj_mat.sum(axis=1))
-                # d_inv = np.power(rowsum, -0.5).flatten()
-                # d_inv[np.isinf(d_inv)] = 0.
-                # d_mat = sp.diags(d_inv)
+                rowsum = np.array(adj_mat.sum(axis=1))
+                d_inv = np.power(rowsum, -1).flatten()
+                d_inv[np.isinf(d_inv)] = 0.
+                d_mat = sp.diags(d_inv)
                 #
-                # norm_adj = d_mat.dot(adj_mat)
+                norm_adj = d_mat.dot(adj_mat)
                 # norm_adj = norm_adj.dot(d_mat)
-                # norm_adj = norm_adj.tocsr()
+                norm_adj = norm_adj.tocsr()
+                sp.save_npz(self.path + '/norm_mat.npz', adj_mat)
+                self.normadj = norm_adj
                 end = time()
                 print(type(self.Graph))
-        return self.Graph
+        return self.Graph,self.normadj
                 # print(f"costing {end - s}s, saved norm_mat...")
             # if self.split == True:
             #     self.Graph = self._split_A_hat(adj_mat)
