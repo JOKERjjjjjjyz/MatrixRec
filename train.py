@@ -1,10 +1,6 @@
 import numpy as np
 from multiprocessing import Pool
-import random
 import math
-import time
-import scipy.sparse
-import multiprocessing
 def rowM(matrix,M):
     B = matrix[:M]
     return B
@@ -32,18 +28,23 @@ def topK(vector, M, N, k, user_start, user_end):
     recommendList = []
     # recommend_vector = [np.zeros(N) for _ in range(M)]
     for user in range(user_start, user_end):
-        print("Topk:user",user,"start")
-        sorted_indices = np.argsort(vector[user])
+        dense = vector[user].toarray()
+        dense_vector_user = dense[0]
+        # print("user",user,":",dense_vector_user)
+        sorted_indices = np.argsort(dense_vector_user)
+        # print("user", user, ":", sorted_indices)
         topk_indices = sorted_indices[-k:]
+        # print("user", user, ":", topk_indices)
         for idx in topk_indices:
+            # print(user,idx)
             # recommend_vector[user][idx] = 1
             recommendList.append((user, idx))
-        print("user", user, "finished")
     return recommendList
 
 def parallel_topK(vector_origin, vector_propagate, M, N, k, num_cores):
     chunk_size = M // num_cores
     vector = vector_propagate - vector_origin
+    # print(vector)
     pool = Pool(num_cores)
     results = []
     for i in range(num_cores):
@@ -76,5 +77,4 @@ def evaluate(recommendList, test):
             if (test_item == item):
                 count += 1
                 break
-        print("Evaluating:",count2,"/",RecLenth)
     return count

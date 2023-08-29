@@ -55,14 +55,20 @@ if __name__ == '__main__':
         filename = f"{world.dataset}_vector_propagate_{i}.npy"
         np.save(filename, vector_propagate)
         print("epoch",i," finished")
-        recommendList = parallel_topK(uservector, rowM(vector_propagate,M), M, N, 20,core)
+        recommendList = parallel_topK(uservector, rowM(vector_propagate,M), M, N, 3,core)
         count = evaluate(recommendList, testarray)
         recall = count / dataset.testDataSize
         print("not sum ver:epoch:",i," recall:", recall)
+        filename = f"{world.dataset}_recall_{i}.npy"
+        np.save(filename, recall)
         vector_propagate = C_user_sum.dot(uservector)
-        recommendList = parallel_topK(uservector, rowM(vector_propagate,M), M, N, 20,core)
+        recommendList = parallel_topK(uservector, rowM(vector_propagate,M), M, N, 3,core)
+        filename = f"{world.dataset}_reclist_{i}.npy"
+        np.save(filename, recommendList)
         # recommend_vector_csr = csr_matrix(recommend_vector)
         # sp.save_npz(dataset.path + '/recommend_vector_{i}.npz', recommend_vector_csr)
         count = evaluate(recommendList, testarray)
         recall = count / dataset.testDataSize
         print("sum ver:epoch:",i," recall:", recall)
+        filename = f"{world.dataset}_sum_recall_{i}.npy"
+        np.save(filename, recall)
