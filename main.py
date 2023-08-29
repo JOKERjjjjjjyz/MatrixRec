@@ -21,8 +21,8 @@ UserItemNet_gpu = torch.sparse_coo_tensor(
     size=dataset.UserItemNet.shape
 )
 
-UserItemNet_gpu_transposed = torch.transpose(UserItemNet_gpu, 0, 1)
-B = torch.sparse.mm(UserItemNet_gpu, UserItemNet_gpu_transposed)
+UserItemNet_transposed = torch.transpose(dataset.UserItemNet, 0, 1)
+B = torch.sparse.mm(UserItemNet_gpu, UserItemNet_transposed)
 
 # num_rows, num_cols = dataset.UserItemNet.shape
 # vector_origin = []
