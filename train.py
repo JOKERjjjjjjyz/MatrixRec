@@ -56,10 +56,15 @@ def Klayer_sampleNum(k,epsilon,delta,M,index):
     return int(N)+1
 
 def topK(vector_origin,vector_propagate,M,N,k):
+    print("here")
     recommendList = []
+    print("here")
     recommend_vector = [np.zeros(N) for _ in range(M)]
+    print("here")
     for user in range(M):
+        print("here")
         for j in range(N):
+            print("topk (user,j):(",user,",",j,")")
             if vector_origin[user,j] != 0 :
                 vector_propagate[user,j] = 0;
         sorted_indices = np.argsort(vector_propagate[user])
