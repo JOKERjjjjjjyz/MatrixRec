@@ -34,6 +34,7 @@ for idx, user in enumerate(dataset.test):
     testarray[idx] = dataset.test[user]
 print(C_sum.shape)
 vector_propagate = Mrow(C_sum,M).dot(uservector)
+print("topK here")
 recommendList, recommend_vector = topK(uservector, vector_propagate_sum, M, N, 20)
 count = evaluate(recommendList, testarray)
 recall = count / dataset.testDataSize
