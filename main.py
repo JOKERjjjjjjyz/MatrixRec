@@ -15,6 +15,7 @@ elif world.dataset == 'lastfm':
     dataset = dataloader.Loader(path="./data")
 
 UserItemNet = dataset.UserItemNet.toarray()
+user_item_net_dense = torch.tensor(UserItemNet, dtype=torch.float32)
 file_path = dataset.path + "/saving_files"
 UserItemNet_gpu = torch.sparse_coo_tensor(
     indices=torch.tensor(dataset.UserItemNet.nonzero(), dtype=torch.int64).to('cuda'),
@@ -22,8 +23,10 @@ UserItemNet_gpu = torch.sparse_coo_tensor(
     size=dataset.UserItemNet.shape
 )
 
-UserItemNet_transposed = UserItemNet.transpose()
-B = torch.sparse.mm(UserItemNet_gpu, UserItemNet_transposed)
+# 假设 user_item_net_dense 是一个稠密张量
+user_item_net_transposed = user_item_net_dense.t()
+
+B = torch.sparse.mm(UserItemNet_gpu, user_item_net_transposed)
 
 # num_rows, num_cols = dataset.UserItemNet.shape
 # vector_origin = []
