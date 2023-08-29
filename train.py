@@ -10,20 +10,28 @@ def Mrow(matrix,M):
     print (B.shape)
     return B
 
-# def topK(vector_origin,vector_propagate,M,N,k):
-#     recommendList = []
-#     recommend_vector = [np.zeros(N) for _ in range(M)]
-#     vector = vector_propagate - 1000*vector_origin
-#     print(type(vector_origin),vector_origin.shape,type(vector_propagate),vector_propagate.shape)
-#     for user in range(M):
-#         print("topK of user",user)
-#         sorted_indices = np.argsort(vector[user])
-#         topk_indices = sorted_indices[-k:]
-#         for idx in topk_indices:
-#             recommend_vector[user][idx] = 1
-#             recommendList.append((user,idx))
-#         print("user",user,"finished")
-#     return recommendList, recommend_vector
+def Ktop(vector_origin,vector_propagate,M,N,k,test):
+    recall = 0
+    count = 0
+    vector = vector_propagate - vector_origin
+    vector_array = vector.toarray()
+    topk_indices = np.argsort(vector_array, axis=1)[:, -k:]
+    print (topk_indices,type(topk_indices),topk_indices.shape)
+    for user in range(M):
+        for item in test[user]:
+            count+=1
+            print("Ktop:count")
+            if item in topk_indices[user]: recall +=1
+    return recall
+    # for user in range(M):
+    #     print("topK of user",user)
+    #     sorted_indices = np.argsort(vector[user])
+    #     topk_indices = sorted_indices[-k:]
+    #     for idx in topk_indices:
+    #         recommend_vector[user][idx] = 1
+    #         recommendList.append((user,idx))
+    #     print("user",user,"finished")
+    # return recommendList, recommend_vector
 def topK(vector, M, N, k, user_start, user_end):
     recommendList = []
     # recommend_vector = [np.zeros(N) for _ in range(M)]
@@ -78,3 +86,18 @@ def evaluate(recommendList, test):
                 count += 1
                 break
     return count
+
+# def Ktop(vector_origin,vector_propagate,M,N,k):
+#     recommendList = []
+#     recommend_vector = [np.zeros(N) for _ in range(M)]
+#     vector = vector_propagate - 1000*vector_origin
+#     print(type(vector_origin),vector_origin.shape,type(vector_propagate),vector_propagate.shape)
+#     for user in range(M):
+#         print("topK of user",user)
+#         sorted_indices = np.argsort(vector[user])
+#         topk_indices = sorted_indices[-k:]
+#         for idx in topk_indices:
+#             recommend_vector[user][idx] = 1
+#             recommendList.append((user,idx))
+#         print("user",user,"finished")
+#     return recommendList, recommend_vector
