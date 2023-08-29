@@ -14,14 +14,15 @@ if world.dataset in ['gowalla', 'yelp2018', 'amazon-book']:
 elif world.dataset == 'lastfm':
     dataset = dataloader.Loader(path="./data")
 
+UserItemNet = dataset.UserItemNet.tocsr()
 file_path = dataset.path + "/saving_files"
 UserItemNet_gpu = torch.sparse_coo_tensor(
-    indices=torch.tensor(dataset.UserItemNet.nonzero(), dtype=torch.int64).to('cuda'),
-    values=torch.tensor(dataset.UserItemNet.data, dtype=torch.float32).to('cuda'),
-    size=dataset.UserItemNet.shape
+    indices=torch.tensor(UserItemNet.nonzero(), dtype=torch.int64).to('cuda'),
+    values=torch.tensor(UserItemNet.data, dtype=torch.float32).to('cuda'),
+    size=UserItemNet.shape
 )
 
-UserItemNet_transposed = dataset.UserItemNet.transpose()
+UserItemNet_transposed = UserItemNet.transpose()
 B = torch.sparse.mm(UserItemNet_gpu, UserItemNet_transposed)
 
 # num_rows, num_cols = dataset.UserItemNet.shape
