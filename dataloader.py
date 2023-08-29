@@ -186,7 +186,7 @@ class Loader(BasicDataset):
             except:
                 print("generating adjacency matrix")
                 s = time()
-                adj_mat = sp.dok_matrix((self.n_users + self.m_items-1, self.n_users + self.m_items-1), dtype=np.float32)
+                adj_mat = sp.dok_matrix((self.n_users + self.m_items, self.n_users + self.m_items), dtype=np.float32)
                 adj_mat = adj_mat.tolil()
                 R = self.UserItemNet.tolil()
                 adj_mat[:self.n_users, self.n_users:] = R
