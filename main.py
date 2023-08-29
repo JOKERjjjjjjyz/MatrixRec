@@ -99,6 +99,7 @@ B_cpu = B.to('cpu')
 print("Transposed UserItemNet * UserItemNet:")
 print(B_cpu)
 original_stdout = sys.stdout
+torch.set_printoptions(threshold=np.inf)
 
 # 打开一个文件来替代 stdout
 with open('recall_output.txt', 'w') as f:
@@ -113,3 +114,4 @@ with open('recall_output.txt', 'w') as f:
     # print("items:",dataset.m_items)
 # 恢复原始的 stdout
 sys.stdout = original_stdout
+torch.set_printoptions(profile='default')
