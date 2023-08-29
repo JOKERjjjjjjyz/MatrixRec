@@ -34,10 +34,10 @@ for idx, user in enumerate(dataset.test):
     testarray[idx] = dataset.test[user]
 print(C_sum.shape)
 vector_propagate = Mrow(C_sum,M).dot(uservector)
-recommendList, recommend_vector = topK(uservector, vector_propagate_sum, M, N, 20)
-count = evaluate(recommendList, testarray)
-recall = count / dataset.testDataSize
-print("sum ver:epoch:",1," recall:", recall)
+# recommendList, recommend_vector = topK(uservector, vector_propagate_sum, M, N, 20)
+# count = evaluate(recommendList, testarray)
+# recall = count / dataset.testDataSize
+# print("sum ver:epoch:",1," recall:", recall)
 for i in range(2,K+1):
     C = C.dot(graph) * alpha * math.pow(1-alpha,i-1)
     filename = f"{world.dataset}_matrix_{i}.npy"  # 文件名类似于 matrix_0.npy, matrix_1.npy, ...
@@ -46,15 +46,17 @@ for i in range(2,K+1):
     C_user = Mrow(C,M)
     C_user_sum = Mrow(C_sum,M)
     vector_propagate = C_user.dot(uservector)
-    recommendList, recommend_vector = topK(uservector, vector_propagate_sum, M, N, 20)
-    count = evaluate(recommendList, testarray)
-    recall = count / dataset.testDataSize
-    print("not sum ver:epoch:",i," recall:", recall)
-    vector_propagate = C_user_sum.dot(uservector)
-    recommendList, recommend_vector = topK(uservector, vector_propagate_sum, M, N, 20)
-    count = evaluate(recommendList, testarray)
-    recall = count / dataset.testDataSize
-    print("sum ver:epoch:",i," recall:", recall)
+    print("epoch",i," finished")
+    # recommendList, recommend_vector = topK(uservector, vector_propagate_sum, M, N, 20)
+    # count = evaluate(recommendList, testarray)
+    # recall = count / dataset.testDataSize
+    # print("not sum ver:epoch:",i," recall:", recall)
+    # vector_propagate = C_user_sum.dot(uservector)
+    # recommendList, recommend_vector = topK(uservector, vector_propagate_sum, M, N, 20)
+    # count = evaluate(recommendList, testarray)
+    # recall = count / dataset.testDataSize
+    # print("sum ver:epoch:",i," recall:", recall)
+
 # num_rows, num_cols = dataset.UserItemNet.shape
 # vector_origin = []
 #
