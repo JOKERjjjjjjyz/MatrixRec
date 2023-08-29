@@ -62,11 +62,8 @@ def topK(vector_origin,vector_propagate,M,N,k):
     recommend_vector = [np.zeros(N) for _ in range(M)]
     print("here")
     for user in range(M):
-        print("here")
-        for j in range(N):
-            print("topk (user,j):(",user,",",j,")")
-            if vector_origin[user,j] != 0 :
-                vector_propagate[user,j] = 0;
+        print("topK of user",user)
+        recommend_vector = vector_propagate - 10000*vector_origin
         sorted_indices = np.argsort(vector_propagate[user])
         # 获取 top-k 大值的索引
         topk_indices = sorted_indices[-k:]
@@ -75,7 +72,7 @@ def topK(vector_origin,vector_propagate,M,N,k):
             recommendList.append((user,idx))
         # user_recommendList[v] = maximizeK(vector_propagate)
         # for item in user_recommendList[v] do: recommendList.append({v,item})
-
+        print("user",user,"finished")
     return recommendList, recommend_vector
 
 def evaluate(recommendList, test):
