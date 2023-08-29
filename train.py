@@ -75,8 +75,11 @@ def topK(vector_origin,vector_propagate,M,N,k):
 
 def evaluate(recommendList, test):
     count = 0
+    count2 = 0
     print("Evaluating...")
+    len = len(recommendList)
     for tuple_item in recommendList:
+        count2 +=1
         user = tuple_item[0]
         item = tuple_item[1]
         # testnp = numpy_array = np.array(test)
@@ -84,6 +87,7 @@ def evaluate(recommendList, test):
             if (test_item == item):
                 count += 1
                 break
+        print("Evaluating:",count2,"/",len)
     return count
 
 # def main(graph,vector_origin)
