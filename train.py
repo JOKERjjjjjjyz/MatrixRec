@@ -1,4 +1,5 @@
 import numpy as np
+from multiprocessing import Pool
 import random
 import math
 import time
@@ -13,20 +14,53 @@ def Mrow(matrix,M):
     print (B.shape)
     return B
 
-def topK(vector_origin,vector_propagate,M,N,k):
+# def topK(vector_origin,vector_propagate,M,N,k):
+#     recommendList = []
+#     recommend_vector = [np.zeros(N) for _ in range(M)]
+#     vector = vector_propagate - 1000*vector_origin
+#     print(type(vector_origin),vector_origin.shape,type(vector_propagate),vector_propagate.shape)
+#     for user in range(M):
+#         print("topK of user",user)
+#         sorted_indices = np.argsort(vector[user])
+#         topk_indices = sorted_indices[-k:]
+#         for idx in topk_indices:
+#             recommend_vector[user][idx] = 1
+#             recommendList.append((user,idx))
+#         print("user",user,"finished")
+#     return recommendList, recommend_vector
+def topK(vector, M, N, k, user_start, user_end):
     recommendList = []
-    recommend_vector = [np.zeros(N) for _ in range(M)]
-    vector = vector_propagate - 1000*vector_origin
-    print(type(vector_origin),vector_origin.shape,type(vector_propagate),vector_propagate.shape)
-    for user in range(M):
-        print("topK of user",user)
+    # recommend_vector = [np.zeros(N) for _ in range(M)]
+    for user in range(user_start, user_end):
+        print("Topk:user",user,"start")
         sorted_indices = np.argsort(vector[user])
         topk_indices = sorted_indices[-k:]
         for idx in topk_indices:
-            recommend_vector[user][idx] = 1
-            recommendList.append((user,idx))
-        print("user",user,"finished")
-    return recommendList, recommend_vector
+            # recommend_vector[user][idx] = 1
+            recommendList.append((user, idx))
+        print("user", user, "finished")
+    return recommendList
+
+def parallel_topK(vector_origin, vector_propagate, M, N, k, num_cores):
+    chunk_size = M // num_cores
+    vector = vector_propagate - vector_origin
+    pool = Pool(num_cores)
+    results = []
+    for i in range(num_cores):
+        user_start = i * chunk_size
+        user_end = (i + 1) * chunk_size if i < num_cores - 1 else M
+        results.append(pool.apply_async(topK, (vector, M, N, k, user_start, user_end)))
+    pool.close()
+    pool.join()
+
+    recommendList = []
+    recommend_vector = [np.zeros(N) for _ in range(M)]
+    for result in results:
+        partial_recommendList = result.get()
+        recommendList.extend(partial_recommendList)
+        # for user in range(M):
+        #     recommend_vector[user] += partial_recommend_vector[user]
+    return recommendList
 
 def evaluate(recommendList, test):
     count = 0
