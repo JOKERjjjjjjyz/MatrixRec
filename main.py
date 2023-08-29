@@ -17,36 +17,20 @@ elif world.dataset == 'lastfm':
 UserItemNet = dataset.getSparseGraph().toarray()
 graph = dataset.getSparseGraph()
 print(type(graph))
-original_stdout = sys.stdout
-torch.set_printoptions(threshold=np.inf)
-
-# 打开一个文件来替代 stdout
-with open('adjacentmatrix.txt', 'w') as f:
-    # 重定向 stdout 到文件
-    sys.stdout = f
-    print("Final matrix:",graph )
-    # 现在所有的 print 输出都会写入到文件中
-    # with np.printoptions(threshold=np.inf):
-    #     print("0:",vector_array[0])
-    #     print("1:",vector_array[1])
-    # print("users:",dataset.n_users)
-    # print("items:",dataset.m_items)
-# 恢复原始的 stdout
-sys.stdout = original_stdout
-torch.set_printoptions(profile='default')
-
-user_item_net_dense = torch.tensor(UserItemNet, dtype=torch.float32)
-file_path = dataset.path + "/saving_files"
-UserItemNet_gpu = torch.sparse_coo_tensor(
-    indices=torch.tensor(graph.nonzero(), dtype=torch.int64).to('cuda'),
-    values=torch.tensor(graph.data, dtype=torch.float32).to('cuda'),
-    size=graph.shape
-)
-
-# 假设 user_item_net_dense 是一个稠密张量
-user_item_net_transposed = user_item_net_dense.t()
-user_item_net_transposed_gpu = user_item_net_transposed.to('cuda')
-B = torch.sparse.mm(UserItemNet_gpu, user_item_net_transposed_gpu)
+graph_composed = graph.transpose()
+C = graph.dot(graph_composed)
+# user_item_net_dense = torch.tensor(UserItemNet, dtype=torch.float32)
+# file_path = dataset.path + "/saving_files"
+# UserItemNet_gpu = torch.sparse_coo_tensor(
+#     indices=torch.tensor(graph.nonzero(), dtype=torch.int64).to('cuda'),
+#     values=torch.tensor(graph.data, dtype=torch.float32).to('cuda'),
+#     size=graph.shape
+# )
+#
+# # 假设 user_item_net_dense 是一个稠密张量
+# user_item_net_transposed = user_item_net_dense.t()
+# user_item_net_transposed_gpu = user_item_net_transposed.to('cuda')
+# B = torch.sparse.mm(UserItemNet_gpu, user_item_net_transposed_gpu)
 
 # num_rows, num_cols = dataset.UserItemNet.shape
 # vector_origin = []
@@ -113,17 +97,16 @@ B = torch.sparse.mm(UserItemNet_gpu, user_item_net_transposed_gpu)
 # # dense_array = dataset.UserItemNet.toarray()
 
 # 将原始 stdout 保存到变量
-B_cpu = B.to('cpu')
+# B_cpu = B.to('cpu')
 print("Transposed UserItemNet * UserItemNet:")
-print(B_cpu)
+print(C)
 original_stdout = sys.stdout
-torch.set_printoptions(threshold=np.inf)
 
 # 打开一个文件来替代 stdout
 with open('recall_output.txt', 'w') as f:
     # 重定向 stdout 到文件
     sys.stdout = f
-    print("Final matrix:",B_cpu )
+    print("Final matrix:",C )
     # 现在所有的 print 输出都会写入到文件中
     # with np.printoptions(threshold=np.inf):
     #     print("0:",vector_array[0])
@@ -132,4 +115,3 @@ with open('recall_output.txt', 'w') as f:
     # print("items:",dataset.m_items)
 # 恢复原始的 stdout
 sys.stdout = original_stdout
-torch.set_printoptions(profile='default')
