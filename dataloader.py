@@ -207,7 +207,7 @@ class Loader(BasicDataset):
                 norm_adj = d_mat.dot(adj_mat)
                 # norm_adj = norm_adj.dot(d_mat)
                 norm_adj = norm_adj.tocsr()
-                sp.save_npz(self.path + '/norm_mat.npz', adj_mat)
+                sp.save_npz(self.path + '/norm_mat.npz', norm_adj)
                 self.normadj = norm_adj
                 end = time()
                 print(type(self.Graph))
