@@ -98,6 +98,7 @@ C = graph.dot(graph_composed)
 
 # 将原始 stdout 保存到变量
 # B_cpu = B.to('cpu')
+C = C.toarray()
 print("Transposed UserItemNet * UserItemNet:")
 print(C)
 original_stdout = sys.stdout
