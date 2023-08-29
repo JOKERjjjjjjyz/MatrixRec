@@ -15,9 +15,9 @@ elif world.dataset == 'lastfm':
     dataset = dataloader.Loader(path="./data")
 
 graph,norm_graph = dataset.getSparseGraph()
-C=graph
+C=norm_graph
 C_sum =C
-print(norm_graph.shape)
+print(type(graph),type(C))
 M = dataset.n_users
 N = dataset.m_items
 print(M,N)
@@ -29,7 +29,7 @@ print(vector_propagate.shape)
 vector_propagate_sum = np.zeros((M + N, N))  # 创建用于存储总和的矩阵
 testarray = [[] for _ in range(M)]
 uservector = dataset.UserItemNet
-print(uservector.shape)
+print(type(uservector))
 for idx, user in enumerate(dataset.test):
     testarray[idx] = dataset.test[user]
 print(C_sum.shape)
@@ -39,7 +39,8 @@ vector_propagate = Mrow(C_sum,M).dot(uservector)
 # recall = count / dataset.testDataSize
 # print("sum ver:epoch:",1," recall:", recall)
 for i in range(2,K+1):
-    C = C.dot(graph) * alpha * math.pow(1-alpha,i-1)
+    print("epoch",i,"start here")
+    C = C.dot(norm_graph) * alpha * math.pow(1-alpha,i-1)
     filename = f"{world.dataset}_matrix_{i}.npy"  # 文件名类似于 matrix_0.npy, matrix_1.npy, ...
     np.save(filename, C)
     C_sum += C
